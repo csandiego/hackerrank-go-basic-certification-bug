@@ -22,7 +22,6 @@ type in struct {
 	evenChan chan int32
 }
 
-// BUG:
 var serverChan = make(chan in)
 
 func Server() {
@@ -59,6 +58,7 @@ func main() {
 
 	oddChan := make(chan int32)
 	evenChan := make(chan int32)
+	// BUG: Will block unless serverChan is buffered based on len(arr)
 	// for idx := 0; idx < len(arr); idx++ {
 	// 	i := idx
 	// 	serverChan <- in{arr[i], oddChan, evenChan}
@@ -79,6 +79,7 @@ func main() {
 		}
 	}()
 	go Server()
+	// FIX: Start all goroutines first before writing to the unbuffered channel
 	for idx := 0; idx < len(arr); idx++ {
 		i := idx
 		serverChan <- in{arr[i], oddChan, evenChan}
